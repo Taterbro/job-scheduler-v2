@@ -1,0 +1,59 @@
+definitions:
+  job.Job:
+    type: object
+  job.Priority:
+    enum:
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-varnames:
+    - PriorityHigh
+    - PriorityMedium
+    - PriorityLow
+info:
+  contact: {}
+paths:
+  /jobs:
+    post:
+      consumes:
+      - application/json
+      description: Create and queue a new background job. Supports scheduled, recurring,
+        and DAG dependency jobs.
+      parameters:
+      - description: Job payload
+        in: body
+        name: job
+        required: true
+        schema:
+          $ref: '#/definitions/job.Job'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Job created: {id}'
+          schema:
+            type: string
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+      summary: Create a new job
+      tags:
+      - jobs
+  /jobs/list:
+    get:
+      description: Retrieve the current list of jobs with their statuses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of jobs
+          schema:
+            items:
+              $ref: '#/definitions/job.Job'
+            type: array
+      summary: List all jobs
+      tags:
+      - jobs
+swagger: "2.0"
