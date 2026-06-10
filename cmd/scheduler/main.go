@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	httpSwagger "github.com/swaggo/http-swagger"
+	_ "github.com/taterbro/job-scheduler-v2/docs"
 	"github.com/taterbro/job-scheduler-v2/internal/handler"
 	"github.com/taterbro/job-scheduler-v2/internal/routes"
 	"github.com/taterbro/job-scheduler-v2/internal/scheduler"
@@ -27,6 +29,7 @@ func main() {
 
 	http.HandleFunc("/jobs", routes.CreateJob(sched))
 	http.HandleFunc("/jobs/list", routes.ListJobs(st))
+	http.Handle("/docs/", httpSwagger.WrapHandler)
 
 	fmt.Println("Scheduler running on :8080")
 	http.ListenAndServe(":8080", nil)

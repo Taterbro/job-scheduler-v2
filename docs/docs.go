@@ -17,20 +17,20 @@ const docTemplate = `{
     "paths": {
         "/jobs": {
             "post": {
-                "description": "Create and queue a new background job. Supports scheduled, recurring, and DAG dependency jobs.",
+                "description": "Creates a new job that will be queued, scheduled, and processed by workers. Supports immediate, scheduled, recurring, and DAG-dependent jobs.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
-                    "application/json"
+                    "text/plain"
                 ],
                 "tags": [
                     "jobs"
                 ],
-                "summary": "Create a new job",
+                "summary": "Create a new background job",
                 "parameters": [
                     {
-                        "description": "Job payload",
+                        "description": "Job creation payload",
                         "name": "job",
                         "in": "body",
                         "required": true,
@@ -41,13 +41,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Job created: {id}",
+                        "description": "Job created: {job-id}",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "400": {
-                        "description": "Invalid request",
+                        "description": "Invalid JSON payload",
                         "schema": {
                             "type": "string"
                         }
@@ -57,7 +57,7 @@ const docTemplate = `{
         },
         "/jobs/list": {
             "get": {
-                "description": "Retrieve the current list of jobs with their statuses",
+                "description": "Returns all jobs in the system with their current status, useful for live monitoring (polling).",
                 "produces": [
                     "application/json"
                 ],
@@ -67,7 +67,7 @@ const docTemplate = `{
                 "summary": "List all jobs",
                 "responses": {
                     "200": {
-                        "description": "List of jobs",
+                        "description": "List of all jobs",
                         "schema": {
                             "type": "array",
                             "items": {

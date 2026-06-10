@@ -11,15 +11,16 @@ import (
 )
 
 // CreateJob godoc
-// @Summary Create a new job
-// @Description Create and queue a new background job. Supports scheduled, recurring, and DAG dependency jobs.
+// @Summary Create a new background job
+// @Description Creates a new job that will be queued, scheduled, and processed by workers. Supports immediate, scheduled, recurring, and DAG-dependent jobs.
 // @Tags jobs
 // @Accept json
-// @Produce json
-// @Param job body job.Job true "Job payload"
-// @Success 200 {string} string "Job created: {id}"
-// @Failure 400 {string} string "Invalid request"
+// @Produce plain
+// @Param job body job.Job true "Job creation payload"
+// @Success 200 {string} string "Job created: {job-id}"
+// @Failure 400 {string} string "Invalid JSON payload"
 // @Router /jobs [post]
+// @ExampleValue {"type":"send_email","priority":1,"payload":{"to":"user@example.com","subject":"Welcome to our service","body":"Hello there!"},"scheduled_at":"2026-06-10T10:00:00Z","recurring":"every_5_minutes","max_retries":3,"dependencies":["parent-job-uuid-123"]}
 func CreateJob(sched *scheduler.Scheduler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
@@ -42,11 +43,41 @@ func CreateJob(sched *scheduler.Scheduler) http.HandlerFunc {
 
 // ListJobs godoc
 // @Summary List all jobs
-// @Description Retrieve the current list of jobs with their statuses
+// @Description Returns all jobs in the system with their current status, useful for live monitoring (polling).
 // @Tags jobs
 // @Produce json
-// @Success 200 {array} job.Job "List of jobs"
+// @Success 200 {array} job.Job "List of all jobs"
 // @Router /jobs/list [get]
+// @ExampleValue [
+//
+//	{
+//	  "id": "job-uuid-12345",
+//	  "type": "send_email",
+//	  "priority": 1,
+//	  "payload": {"to":"user@example.com","subject":"Welcome"},
+//	  "scheduled_at": "2026-06-10T08:30:00Z",
+//	  "recurring": "every_5_minutes",
+//	  "status": "pending",
+//	  "retry_count": 0,
+//	  "max_retries": 3,
+//	  "dependencies": ["job-uuid-999"],
+//	  "created_at": "2026-06-10T08:22:00Z",
+//	  "updated_at": "2026-06-10T08:22:00Z",
+//	  "error": ""
+//	},
+//	{
+//	  "id": "job-uuid-67890",
+//	  "type": "send_email",
+//	  "priority": 2,
+//	  "status": "completed",
+//	  "retry_count": 0,
+//	  "max_retries": 3,
+//	  "created_at": "2026-06-10T08:22:00Z",
+//	  "updated_at": "2026-06-10T08:22:00Z",
+//	  "error": ""
+//	}
+//
+// ]
 func ListJobs(st *storage.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		jobs := st.List()
